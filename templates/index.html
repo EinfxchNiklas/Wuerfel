@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Würfelsimulator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
+        }
+        #dice {
+            margin-top: 20px;
+        }
+        #result {
+            font-size: 24px;
+            margin-top: 10px;
+        }
+        .button-container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+        button {
+            font-size: 18px;
+            padding: 10px;
+            cursor: pointer;
+        }
+        #dice-image {
+            width: 100px; /* Größe des Würfels */
+            height: 100px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Würfelsimulator</h1>
+    <div id="dice">
+        <img id="dice-image" src="{{ url_for('static', filename='dice1.png') }}" alt="Würfelergebnis">
+    </div>
+    <div id="result">Zahl: 1</div>
+    <div class="button-container">
+        <button id="roll-button">Würfeln!</button>
+    </div>
+
+    <script>
+        document.getElementById('roll-button').addEventListener('click', function() {
+            // API-Aufruf an die Flask-Route /roll
+            fetch('/roll')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.dice_roll !== undefined) { 
+                        shakeDice(data.dice_roll); // Richtige Zahl übergeben
+                    } else {
+                        console.error("Fehler: dice_roll nicht definiert.");
+                    }
+                })
+                .catch(error => console.error("Fehler beim Abrufen der Würfelzahl:", error));
+        });
+
+        // Animation für das Würfeln
+        function shakeDice(finalRoll) {
+            const diceImage = document.getElementById('dice-image');
+            let counter = 0;
+
+            const shakes = setInterval(() => {
+                const randomDice = Math.floor(Math.random() * 6) + 1;
+                diceImage.src = `/static/dice${randomDice}.png`; // Zufälliges Bild für Animation
+                counter++;
+                
+                if (counter > 10) { // 10 Animation-Schritte
+                    clearInterval(shakes);
+                    // Nach dem Schütteln das finale Bild und die Zahl setzen
+                    diceImage.src = `/static/dice${finalRoll}.png`;
+                    document.getElementById('result').textContent = `Zahl: ${finalRoll}`;
+                }
+            }, 100);
+        }
+    </script>
+</body>
+</html>
