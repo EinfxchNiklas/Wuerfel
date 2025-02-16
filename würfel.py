@@ -1,4 +1,3 @@
-# http://192.168.178.163:4999/
 from flask import Flask, render_template, jsonify
 import random
 import webbrowser
